@@ -58,7 +58,16 @@ def create_edge_attr(df):
             edge_attr.append([float(df.iloc[i,j])])
     edge_attr = edge_attr + edge_attr
     return edge_attr
+def create_edge_attr_np(df):
+    nrow, ncol = df.shape
+    edge_attr = [float(value) for value in df.values.flatten()]
+    edge_attr = edge_attr[:nrow*ncol]
+    edge_attr_new = np.concatenate((edge_attr, edge_attr))
+    print(nrow,ncol,nrow*ncol)
+    print(edge_attr_new.shape)
 
+    edge_attr_new = edge_attr_new.reshape(nrow*2, ncol)
+    return edge_attr_new.tolist()
 
 def get_data(df_X, df_y, node_mode, train_edge_prob, split_sample_ratio, split_by, train_y_prob, seed=0, normalize=True):
     if len(df_y.shape)==1:

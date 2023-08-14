@@ -143,6 +143,17 @@ def train_gnn_y(data, args, log_path, device=torch.device('cpu')):
             test_rmse = np.sqrt(mse.item())
             l1 = F.l1_loss(pred_test, label_test)
             test_l1 = l1.item()
+            
+            '''AUCCCCCCCCCCCCCCCCCCCCCCCCCCC'''
+            from sklearn.metrics import roc_auc_score
+
+            # 将预测张量和真实标签张量转换为NumPy数组
+            predictions_np = pred_test.numpy()  # 假设predictions是一个PyTorch或TensorFlow张量
+            labels_np = label_test.numpy()  # 假设labels是一个PyTorch或TensorFlow张量
+
+            # 计算AUC
+            test_auc = roc_auc_score(labels_np, predictions_np)
+
 
             Train_loss.append(train_loss)
             Test_rmse.append(test_rmse)
@@ -152,6 +163,7 @@ def train_gnn_y(data, args, log_path, device=torch.device('cpu')):
             if args.valid > 0.:
                 print('valid rmse: ', valid_rmse)
                 print('valid l1: ', valid_l1)
+            print("test AUC:", test_auc)
             print('test rmse: ', test_rmse)
             print('test l1: ', test_l1)
 
