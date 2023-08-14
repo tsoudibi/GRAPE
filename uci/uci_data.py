@@ -60,14 +60,9 @@ def create_edge_attr(df):
     return edge_attr
 def create_edge_attr_np(df):
     nrow, ncol = df.shape
-    edge_attr = [float(value) for value in df.values.flatten()]
-    edge_attr = edge_attr[:nrow*ncol]
-    edge_attr_new = np.concatenate((edge_attr, edge_attr))
-    print(nrow,ncol,nrow*ncol)
-    print(edge_attr_new.shape)
-
-    edge_attr_new = edge_attr_new.reshape(nrow*2, ncol)
-    return edge_attr_new.tolist()
+    edge_attr = [[float(value)] for value in df.values.flatten()]
+    edge_attr = edge_attr + edge_attr
+    return edge_attr 
 
 def get_data(df_X, df_y, node_mode, train_edge_prob, split_sample_ratio, split_by, train_y_prob, seed=0, normalize=True):
     if len(df_y.shape)==1:
@@ -82,7 +77,7 @@ def get_data(df_X, df_y, node_mode, train_edge_prob, split_sample_ratio, split_b
         df_X = pd.DataFrame(x_scaled)
     edge_start, edge_end = create_edge_np(df_X)
     edge_index = torch.tensor([edge_start, edge_end], dtype=int)
-    edge_attr = torch.tensor(create_edge_attr(df_X), dtype=torch.float)
+    edge_attr = torch.tensor(create_edge_attr_np(df_X), dtype=torch.float)
     print('WTF')
     node_init = create_node(df_X, node_mode) 
     x = torch.tensor(node_init, dtype=torch.float)

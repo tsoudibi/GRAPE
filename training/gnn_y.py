@@ -148,8 +148,8 @@ def train_gnn_y(data, args, log_path, device=torch.device('cpu')):
             from sklearn.metrics import roc_auc_score
 
             # 将预测张量和真实标签张量转换为NumPy数组
-            predictions_np = pred_test.numpy()  # 假设predictions是一个PyTorch或TensorFlow张量
-            labels_np = label_test.numpy()  # 假设labels是一个PyTorch或TensorFlow张量
+            predictions_np = pred_test.cpu().numpy()  # 假设predictions是一个PyTorch或TensorFlow张量
+            labels_np = label_test.cpu().numpy()  # 假设labels是一个PyTorch或TensorFlow张量
 
             # 计算AUC
             test_auc = roc_auc_score(labels_np, predictions_np)
