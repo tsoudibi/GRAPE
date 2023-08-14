@@ -69,7 +69,7 @@ def main():
     cmd_input = 'python ' + ' '.join(sys.argv) + '\n'
     with open(osp.join(log_path, 'cmd_input.txt'), 'a') as f:
         f.write(cmd_input)
-
+    print('train start')
     train_gnn_y(data, args, log_path, device)
 
 if __name__ == '__main__':

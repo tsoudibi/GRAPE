@@ -29,44 +29,56 @@ def create_node(df, mode):
         node = sample_node.tolist() + feature_node.tolist()
     return node
 
+from tqdm import trange
 def create_edge(df):
     n_row, n_col = df.shape
     edge_start = []
     edge_end = []
-    for x in range(n_row):
+    for x in trange(n_row):
         edge_start = edge_start + [x] * n_col # obj
         edge_end = edge_end + list(n_row+np.arange(n_col)) # att    
     edge_start_new = edge_start + edge_end
     edge_end_new = edge_end + edge_start
     return (edge_start_new, edge_end_new)
 
+def create_edge_np(df):
+    n_row, n_col = df.shape
+    edge_start = np.repeat(np.arange(n_row), n_col)
+    edge_end = np.tile(np.arange(n_row, n_row + n_col), n_row)
+
+    edge_start_new = np.concatenate((edge_start, edge_end))
+    edge_end_new = np.concatenate((edge_end, edge_start))
+    return (edge_start_new.tolist(), edge_end_new.tolist())
+
 def create_edge_attr(df):
     nrow, ncol = df.shape
     edge_attr = []
-    for i in range(nrow):
+    for i in trange(nrow):
         for j in range(ncol):
             edge_attr.append([float(df.iloc[i,j])])
     edge_attr = edge_attr + edge_attr
     return edge_attr
+
 
 def get_data(df_X, df_y, node_mode, train_edge_prob, split_sample_ratio, split_by, train_y_prob, seed=0, normalize=True):
     if len(df_y.shape)==1:
         df_y = df_y.to_numpy()
     elif len(df_y.shape)==2:
         df_y = df_y[0].to_numpy()
-
+        
     if normalize:
         x = df_X.values
         min_max_scaler = preprocessing.MinMaxScaler()
         x_scaled = min_max_scaler.fit_transform(x)
         df_X = pd.DataFrame(x_scaled)
-    edge_start, edge_end = create_edge(df_X)
+    edge_start, edge_end = create_edge_np(df_X)
     edge_index = torch.tensor([edge_start, edge_end], dtype=int)
     edge_attr = torch.tensor(create_edge_attr(df_X), dtype=torch.float)
+    print('WTF')
     node_init = create_node(df_X, node_mode) 
     x = torch.tensor(node_init, dtype=torch.float)
     y = torch.tensor(df_y, dtype=torch.float)
-    
+    print(x.shape, y.shape, edge_index.shape, edge_attr.shape)
     #set seed to fix known/unknwon edges
     torch.manual_seed(seed)
     #keep train_edge_prob of all edges
@@ -157,12 +169,14 @@ def get_data(df_X, df_y, node_mode, train_edge_prob, split_sample_ratio, split_b
 
 def load_data(args):
     uci_path = osp.dirname(osp.abspath(inspect.getfile(inspect.currentframe())))
+    print(uci_path+'/raw_data/{}/data/data.txt'.format(args.data))
     df_np = np.loadtxt(uci_path+'/raw_data/{}/data/data.txt'.format(args.data))
     df_y = pd.DataFrame(df_np[:, -1:])
     df_X = pd.DataFrame(df_np[:, :-1])
     if not hasattr(args,'split_sample'):
         args.split_sample = 0
     data = get_data(df_X, df_y, args.node_mode, args.train_edge, args.split_sample, args.split_by, args.train_y, args.seed)
+    print(data)
     return data
 
 
