@@ -26,7 +26,7 @@ def main():
     parser.add_argument('--impute_hiddens', type=str, default='')
     parser.add_argument('--impute_activation', type=str, default='relu')
     parser.add_argument('--predict_hiddens', type=str, default='')
-    parser.add_argument('--epochs', type=int, default=20000)
+    parser.add_argument('--epochs', type=int, default=6000)
     parser.add_argument('--opt', type=str, default='adam')
     parser.add_argument('--opt_scheduler', type=str, default='none')
     parser.add_argument('--opt_restart', type=int, default=0)

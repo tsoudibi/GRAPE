@@ -54,6 +54,34 @@ def get_known_mask(known_prob, edge_num):
     known_mask = (torch.FloatTensor(edge_num, 1).uniform_() < known_prob).view(-1)
     return known_mask
 
+edge_start_new = None
+edge_end_new = None 
+def save_edge_index(start,end):
+    global edge_end_new, edge_start_new
+    edge_start_new = start
+    edge_end_new = end
+    
+def get_known_mask_fold(known_prob, edge_num, fold=0):
+    masked_sample_index = np.loadtxt("uci/raw_data/adult/data/index_test_{}.txt".format(fold),dtype=int)
+    # masked_sample_index = torch.tensor(masked_sample_index)
+    mask_start = ~np.isin(edge_start_new, masked_sample_index)
+    # mask_end = ~np.isin(edge_end_new, masked_sample_index)
+    # overal_mask = np.logical_and(mask_start, mask_end)
+    known_mask = torch.tensor(mask_start)
+    print(edge_num,known_mask.shape )
+    # known_mask = (torch.FloatTensor(edge_num, 1).uniform_() < known_prob).view(-1)
+    return known_mask
+
+def get_known_mask_Y(known_prob, edge_num, fold=0):
+    masked_sample_index = np.loadtxt("uci/raw_data/adult/data/index_test_{}.txt".format(fold),dtype=int)
+    Ys = np.arange(edge_num) + 1
+    mask_start = ~np.isin(Ys, masked_sample_index)
+    # mask_end = ~np.isin(edge_end_new, masked_sample_index)
+    # overal_mask = np.logical_and(mask_start, mask_end)
+    known_mask = torch.tensor(mask_start)
+    # known_mask = (torch.FloatTensor(edge_num, 1).uniform_() < known_prob).view(-1)
+    return known_mask
+
 def mask_edge(edge_index,edge_attr,mask,remove_edge):
     edge_index = edge_index.clone().detach()
     edge_attr = edge_attr.clone().detach()
