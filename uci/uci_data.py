@@ -10,7 +10,7 @@ import numpy as np
 import pdb
 
 from utils.utils import get_known_mask, mask_edge, get_known_mask_fold, save_edge_index,get_known_mask_Y
-
+DATASET = None
 def create_node(df, mode):
     if mode == 0: # onehot feature node, all 1 sample node
         nrow, ncol = df.shape
@@ -87,7 +87,8 @@ def get_data(df_X, df_y, node_mode, train_edge_prob, split_sample_ratio, split_b
     #set seed to fix known/unknwon edges
     torch.manual_seed(seed)
     #keep train_edge_prob of all edges
-    train_edge_mask = get_known_mask_fold(train_edge_prob, int(edge_attr.shape[0]/2),fold = 0)
+    global DATASET
+    train_edge_mask = get_known_mask_fold(train_edge_prob, int(edge_attr.shape[0]/2),fold = 0, data = DATASET)
     double_train_edge_mask = torch.cat((train_edge_mask, train_edge_mask), dim=0)
 
     #mask edges based on the generated train_edge_mask
@@ -99,7 +100,7 @@ def get_data(df_X, df_y, node_mode, train_edge_prob, split_sample_ratio, split_b
                                                 ~double_train_edge_mask, True)
     test_labels = test_edge_attr[:int(test_edge_attr.shape[0]/2),0]
     #mask the y-values during training, i.e. how we split the training and test sets
-    train_y_mask = get_known_mask_Y(train_y_prob, y.shape[0])
+    train_y_mask = get_known_mask_Y(train_y_prob, y.shape[0],data = DATASET)
     test_y_mask = ~train_y_mask
 
     data = Data(x=x, y=y, edge_index=edge_index, edge_attr=edge_attr,
@@ -173,8 +174,10 @@ def get_data(df_X, df_y, node_mode, train_edge_prob, split_sample_ratio, split_b
     return data
 
 def load_data(args):
+    global DATASET
     uci_path = osp.dirname(osp.abspath(inspect.getfile(inspect.currentframe())))
     print(uci_path+'/raw_data/{}/data/data.txt'.format(args.data))
+    DATASET = args.data
     df_np = np.loadtxt(uci_path+'/raw_data/{}/data/data.txt'.format(args.data))
     df_y = pd.DataFrame(df_np[:, -1:])
     df_X = pd.DataFrame(df_np[:, :-1])

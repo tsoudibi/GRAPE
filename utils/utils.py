@@ -61,8 +61,8 @@ def save_edge_index(start,end):
     edge_start_new = start
     edge_end_new = end
     
-def get_known_mask_fold(known_prob, edge_num, fold=0):
-    masked_sample_index = np.loadtxt("uci/raw_data/adult/data/index_test_{}.txt".format(fold),dtype=int)
+def get_known_mask_fold(known_prob, edge_num, fold=0,data=None):
+    masked_sample_index = np.loadtxt("uci/raw_data/{}/data/index_test_{}.txt".format(data,fold),dtype=int)
     # masked_sample_index = torch.tensor(masked_sample_index)
     mask_start = ~np.isin(edge_start_new, masked_sample_index)
     # mask_end = ~np.isin(edge_end_new, masked_sample_index)
@@ -72,8 +72,8 @@ def get_known_mask_fold(known_prob, edge_num, fold=0):
     # known_mask = (torch.FloatTensor(edge_num, 1).uniform_() < known_prob).view(-1)
     return known_mask
 
-def get_known_mask_Y(known_prob, edge_num, fold=0):
-    masked_sample_index = np.loadtxt("uci/raw_data/adult/data/index_test_{}.txt".format(fold),dtype=int)
+def get_known_mask_Y(known_prob, edge_num, fold=0,data=None):
+    masked_sample_index = np.loadtxt("uci/raw_data/{}/data/index_test_{}.txt".format(data,fold),dtype=int)
     Ys = np.arange(edge_num) + 1
     mask_start = ~np.isin(Ys, masked_sample_index)
     # mask_end = ~np.isin(edge_end_new, masked_sample_index)
